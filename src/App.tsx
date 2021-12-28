@@ -87,9 +87,9 @@ const Login = ({ success, error, setError, setSuccess }: LoginProps) => {
 const localStorageKey = "last-login-at";
 const getCurrentTime = () => new Date().getTime().toString();
 const getLocalStorageValue = () => window.localStorage.getItem(localStorageKey);
-const dayInSec = 60 * 60 * 24;
+const dayInMs = 60 * 60 * 24 * 1000;
 const isLessThanOneDayCache = () =>
-  +getCurrentTime() - +(getLocalStorageValue() || "0") < dayInSec;
+  +getCurrentTime() - +(getLocalStorageValue() || "0") < dayInMs;
 
 export default function App() {
   const [display, setDisplay] = React.useState(isLessThanOneDayCache());
