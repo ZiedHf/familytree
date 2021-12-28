@@ -1,10 +1,52 @@
 html,
 body {
   margin: 0px;
+  font-size: 18px;
 }
 
 .diagram-component {
   width: 100vw;
   height: 100vh;
   background-color: white;
+}
+
+.MuiInputLabel-root {
+  left: auto !important;
+}
+
+.MuiButton-endIcon {
+  margin-right: 8px !important;
+  margin-left: -4px !important;
+}
+
+.MuiButton-endIcon > .MuiSvgIcon-root {
+  transform: scaleX(-1) !important;
+}
+
+.bottom-title {
+  margin-bottom: 8px !important;
+}
+
+.verify-btn {
+  margin-top: 8px !important;
+}
+
+.MuiAlert-root {
+  position: absolute !important;
+  width: 100vw !important;
+  top: 0px !important;
+  left: 0px !important;
+  padding: 0px !important;
+}
+
+.MuiAlert-message {
+  width: 100%;
+}
+
+.alert-content {
+  font-weight: 600;
+}
+
+.divider {
+  margin: 8px 0px !important;
 }

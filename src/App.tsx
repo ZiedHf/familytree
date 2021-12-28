@@ -1,129 +1,155 @@
 import React from "react";
-import * as go from "gojs";
-import { ReactDiagram } from "gojs-react";
-import nodeDataArray from "./familyData";
-import { Person, Gender } from "./types";
+import Diagram from "./Diagram";
+import hashjs from "hash.js";
+import {
+  Alert,
+  AlertTitle,
+  Button,
+  createTheme,
+  Divider,
+  TextField,
+  ThemeProvider,
+  Typography,
+} from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
+import ThumbUp from "@mui/icons-material/ThumbUp";
 
 import "./App.css";
 
-function initDiagram() {
-  var $ = go.GraphObject.make; // for conciseness in defining templates
+const letIn =
+  "26265713e39cee6c8ba613b25fb844f2ddd9e15842171452a9322ddedab546d990e1b7ebc6497a60483b495c8342e67d6f23b1e49aa544d39af59f0e3a42757d";
 
-  const myDiagram = $(go.Diagram, {
-    "toolManager.hoverDelay": 100, // 100 milliseconds instead of the default 850
-    allowCopy: false,
-    // create a TreeLayout for the family tree
-    layout: $(go.TreeLayout, {
-      angle: 90,
-      nodeSpacing: 10,
-      layerSpacing: 40,
-      layerStyle: go.TreeLayout.LayerUniform,
-    }),
-  });
+const theme = createTheme({
+  direction: "rtl",
+});
 
-  var blueGrad = "#90CAF9";
-  var pinkGrad = "#F48FB1";
+const doHash = (password: string) =>
+  hashjs.sha512().update(password).digest("hex");
 
-  // get tooltip text from the object's data
-  function tooltipTextConverter(person: Person) {
-    var str = "";
-    if (person.name !== undefined) str += "الاسم: " + person.name;
-    // if (person.key !== undefined) str += "\nالرمز: " + person.key;
-    if (person.birthYear !== undefined)
-      str += "\nولد سنة : " + person.birthYear;
-    if (person.deathYear !== undefined)
-      str += "\nتوفي سنة : " + person.deathYear;
-    if (person.partner !== undefined) str += "\nشريك: " + person.partner;
-    if (person.description !== undefined) str += "\nوصف: " + person.description;
-    return str;
-  }
+type LoginProps = {
+  success: boolean;
+  error: boolean;
+  setError: React.Dispatch<React.SetStateAction<boolean>>;
+  setSuccess: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
-  // define tooltips for nodes
-  var tooltipTemplate = $(
-    "ToolTip",
-    { "Border.fill": "whitesmoke", "Border.stroke": "black" },
-    $(
-      go.TextBlock,
-      {
-        font: "bold 8pt Helvetica, bold Arial, sans-serif",
-        wrap: go.TextBlock.WrapFit,
-        margin: 5,
-      },
-      new go.Binding("text", "", tooltipTextConverter)
-    )
-  );
+const Login = ({ success, error, setError, setSuccess }: LoginProps) => {
+  const [value, setValue] = React.useState("");
+  const onChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    if (error) setError(false);
+    setValue(e.target.value);
+  };
 
-  // define Converters to be used for Bindings
-  function genderBrushConverter(gender: Gender) {
-    if (gender === Gender.M) return blueGrad;
-    if (gender === Gender.F) return pinkGrad;
-    return "orange";
-  }
+  const onVerify = () => {
+    if (success) return;
+    if (letIn === doHash(value)) setSuccess(true);
+    else setError(true);
+  };
 
-  // replace the default Node template in the nodeTemplateMap
-  myDiagram.nodeTemplate = $(
-    go.Node,
-    "Auto",
-    { deletable: false, toolTip: tooltipTemplate },
-    new go.Binding("text", "name"),
-    $(
-      go.Shape,
-      "Rectangle",
-      {
-        fill: "lightgray",
-        stroke: null,
-        strokeWidth: 0,
-        stretch: go.GraphObject.Fill,
-        alignment: go.Spot.Center,
-      },
-      new go.Binding("fill", "gender", genderBrushConverter)
-    ),
-    $(
-      go.TextBlock,
-      {
-        font: "700 12px Droid Serif, sans-serif",
-        textAlign: "center",
-        margin: 10,
-        maxSize: new go.Size(80, NaN),
-      },
-      new go.Binding("text", "name")
-    )
-  );
-
-  // define the Link template
-  myDiagram.linkTemplate = $(
-    go.Link, // the whole link panel
-    { routing: go.Link.Orthogonal, corner: 5, selectable: false },
-    $(go.Shape, { strokeWidth: 3, stroke: "#424242" })
-  ); // the gray link shape
-
-  // create the model for the family tree
-  myDiagram.model = new go.TreeModel(nodeDataArray);
-
-  // Scroll to the main root tree
-  myDiagram.addDiagramListener("InitialLayoutCompleted", () => {
-    myDiagram.scrollToRect(
-      (myDiagram.findNodeForKey(0) as go.Node).actualBounds
-    );
-  });
-
-  return myDiagram;
-}
-
-function App() {
-  const diagramRef = React.useRef<ReactDiagram>(null);
+  const onKeyUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (["NumpadEnter", "Enter"].includes(e.code)) onVerify();
+  };
 
   return (
-    <div className="App">
-      <ReactDiagram
-        ref={diagramRef}
-        initDiagram={initDiagram}
-        divClassName="diagram-component"
-        nodeDataArray={nodeDataArray}
-        skipsDiagramUpdate
-      />
+    <div style={{ display: "flex", height: "100vh", justifyContent: "center" }}>
+      <div style={{ alignSelf: "center", textAlign: "center" }}>
+        <Typography variant="h4">شجرة العائلة</Typography>
+        <Typography className="bottom-title" variant="h5">
+          أبناء سيدي عبد الحفيظ الخنقي
+        </Typography>
+        <TextField
+          id="password"
+          label="كلمة المرور"
+          variant="standard"
+          value={value}
+          onChange={onChange}
+          onKeyUp={onKeyUp}
+          type="password"
+          disabled={success}
+        />
+        <div className="verify-btn">
+          <Button
+            disabled={success}
+            variant="contained"
+            endIcon={<SendIcon />}
+            onClick={onVerify}
+          >
+            دخول
+          </Button>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
-export default App;
+const localStorageKey = "last-login-at";
+const getCurrentTime = () => new Date().getTime().toString();
+const getLocalStorageValue = () => window.localStorage.getItem(localStorageKey);
+const dayInSec = 60 * 60 * 24;
+const isLessThanOneDayCache = () =>
+  +getCurrentTime() - +(getLocalStorageValue() || "0") < dayInSec;
+
+export default function App() {
+  const [display, setDisplay] = React.useState(isLessThanOneDayCache());
+  const [success, setSuccess] = React.useState(false);
+  const [error, setError] = React.useState(false);
+
+  // Unsecured authentication
+  React.useEffect(() => {
+    if (display && !getLocalStorageValue()) {
+      window.localStorage.setItem(localStorageKey, getCurrentTime());
+    }
+  }, [display]);
+
+  return (
+    <ThemeProvider theme={theme}>
+      {error && (
+        <Alert severity="error">
+          <AlertTitle>كلمة المرور خاطئة</AlertTitle>
+          <strong>
+            يرجى التحقق من كلمة المرور. الرجاء اعادة المحاولة مرة أخرى
+          </strong>
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success">
+          <AlertTitle>كلمة المرور سليمة</AlertTitle>
+          <Divider className="divider" />
+          <div className="alert-content">
+            <div>يرجى عدم مشاركة كلمة المرور مع أي فرد من خارج العائلة</div>
+            <div>يرجى التواصل مع مشرف الموقع في الحالات الآتية</div>
+            <ul>
+              <ol>
+                عدم امكانية التسجيل مستقبلا. قد يتم تغيير كلمة المرور لحماية
+                المعطيات الشخصية خلال كل فترة زمنية
+              </ol>
+              <ol>في حالة وجود معلومات خاطئة</ol>
+              <ol>في حالة رغبتك في حذف اسمك أو أسماء أبناءك</ol>
+            </ul>
+          </div>
+          <Button
+            variant="contained"
+            endIcon={<ThumbUp />}
+            onClick={() => success && setDisplay(true)}
+          >
+            موافق
+          </Button>
+        </Alert>
+      )}
+      <div>
+        {display ? (
+          <Diagram />
+        ) : (
+          <Login
+            success={success}
+            error={error}
+            setSuccess={setSuccess}
+            setError={setError}
+          />
+        )}
+      </div>
+    </ThemeProvider>
+  );
+}
