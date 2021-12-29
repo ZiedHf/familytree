@@ -375,7 +375,6 @@ const nodeDataArray: Person[] = [
     gender: Gender.M,
     birthYear: "-",
   },
-  { key: 57, parent: 30, name: "منذر", gender: Gender.M, birthYear: "-" },
   {
     key: 58,
     parent: 33,
@@ -2911,6 +2910,13 @@ const nodeDataArray: Person[] = [
     key: 422,
     parent: 402,
     name: "مباركة",
+    gender: Gender.F,
+    birthYear: "-",
+  },
+  {
+    key: 57,
+    parent: 402,
+    name: "حياة",
     gender: Gender.F,
     birthYear: "-",
   },

@@ -98,7 +98,7 @@ export default function App() {
 
   // Unsecured authentication
   React.useEffect(() => {
-    if (display && !getLocalStorageValue()) {
+    if (display) {
       window.localStorage.setItem(localStorageKey, getCurrentTime());
     }
   }, [display]);
